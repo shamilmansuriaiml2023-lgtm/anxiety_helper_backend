@@ -28,15 +28,25 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    username = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        user = authenticate(username=attrs["email"], password=attrs["password"])
+        user = authenticate(
+            username=attrs["username"],
+            password=attrs["password"]
+        )
+
         if not user:
-            raise serializers.ValidationError("Invalid email or password.")
+            raise serializers.ValidationError(
+                "Invalid username or password."
+            )
+
         if not user.is_active:
-            raise serializers.ValidationError("This account has been disabled.")
+            raise serializers.ValidationError(
+                "This account has been disabled."
+            )
+
         attrs["user"] = user
         return attrs
 
