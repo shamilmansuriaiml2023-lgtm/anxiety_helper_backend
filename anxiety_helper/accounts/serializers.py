@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import User, Profile
 
@@ -14,16 +13,20 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
-            raise serializers.ValidationError({"password": "Passwords do not match."})
+            raise serializers.ValidationError(
+                {"password": "Passwords do not match."}
+            )
         return attrs
 
     def create(self, validated_data):
         validated_data.pop("password2")
+
         user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
         )
+
         return user
 
 
@@ -33,7 +36,7 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         user = authenticate(
-            username=attrs["username"],
+            email=attrs["username"],   # frontend username field me email bhej raha hai
             password=attrs["password"]
         )
 
@@ -57,7 +60,15 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ["id", "username", "email", "age", "gender", "anxiety_level", "emergency_enabled"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "age",
+            "gender",
+            "anxiety_level",
+            "emergency_enabled",
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):
